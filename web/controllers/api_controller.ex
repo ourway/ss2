@@ -8,6 +8,17 @@ defmodule Ss2.ApiController do
   end
 
 
+    def save(conn, params) do
+    case params["link"] do
+      nil ->
+        json conn, %{:message => :link_not_found}
+      link ->
+        shortlink = Database.Link.get(link)
+        json conn, %{:shortlink => shortlink}
+    end
+  end
+
+
 
 end
 

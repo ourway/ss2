@@ -33,9 +33,9 @@ defdatabase Database do
 
   # this defines a table with an user_id key and a content attribute, and
   # makes the table a bag; tables are basically records with a bunch of helpers
-    deftable Link, [:key, :original, :short, :code,  :datetime, :description], type: :bag do
+    deftable Link, [:key, :original, :short, :code, :datetime, :clicks], type: :bag do
       @type t :: %Link{key: String.t, original: String.t, short: String.t,
-                        code: String.t, datetime: Integer, description: String.t}
+                        code: String.t, datetime: Integer, clicks: Integer}
       # this defines a helper function to fetch the user from a Message record
       def short(self) do
         Link.read(self.short)
@@ -59,12 +59,14 @@ defdatabase Database do
                   ncode = findNewUrl()
                   short =  "https://ss2.ir/#{ncode}"
                   new_link = %Link{key: key, original: link,
-                                  datetime: utcnow, short: short, code: ncode}
+                                  datetime: utcnow, short: short, code: ncode, clicks: 0}
                   new_link |> Link.write
                   short
 
                 data ->
-                  data
+                  [%Link{key: _key, original: _link,
+                        datetime: _datetime, short: short, code: _ncode, clicks: _clicks}] = data
+                  short
                end
             result
           end
@@ -86,7 +88,7 @@ defdatabase Database do
               save(link)
             data ->
               case %Amnesia.Table.Match{coerce: Link, values: [{Link, _key,
-              _original, short, _code, _datetime, _description }]} = data do
+              _original, short, _code, _datetime, _clicks }]} = data do
                 _ ->
                   short
               end
@@ -96,21 +98,38 @@ defdatabase Database do
     end
 
 
-      def from(short) do
+      def from_code(code) do
         Amnesia.transaction do
-          case Link.match!(short: short)  do
+          case Link.match!(code: code)  do
             nil ->
               :not_found
             data ->
-              case %Amnesia.Table.Match{coerce: Link, values: [{Link, _key,
-              original, _short, _code, _datetime, _description }]} = data do
+              case %Amnesia.Table.Match{coerce: Link, values: [{Link, key,
+              original, short, code, datetime, clicks }]} = data do
                 _ ->
-                  original
+                  remove(original)
+                  Amnesia.transaction do
+                    new_link = %Link{key: key, original: original,
+                                  datetime: datetime, short: short, code: code, clicks: clicks+1}
+                    new_link |> Link.write
+
+                  end
+                  [original, clicks]
               end
             end
 
         end
     end
+
+      def from(short) do
+        code = short |> String.replace("https://ss2.ir/", "")
+        from_code(code)
+      end
+
+
+
+
+
 
 
 

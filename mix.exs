@@ -17,7 +17,8 @@ defmodule Ss2.Mixfile do
   # Type `mix help compile.app` for more information.
   def application do
     [mod: {Ss2, []},
-     applications: [:phoenix, :phoenix_pubsub, :cowboy, :logger, :gettext, :amnesia]]
+     applications: [:phoenix, :phoenix_pubsub, :cowboy,
+                    :logger, :gettext, :amnesia, :quantum]]
   end
 
   # Specifies which paths to compile per environment.
@@ -31,6 +32,7 @@ defmodule Ss2.Mixfile do
     [{:phoenix, "~> 1.2.1"},
      {:phoenix_pubsub, "~> 1.0"},
      {:gettext, "~> 0.11"},
+     {:quantum, ">= 1.8.1"},
      {:amnesia, "~> 0.2.5"},
      {:cowboy, "~> 1.0"}]
   end
