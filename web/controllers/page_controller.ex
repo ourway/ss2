@@ -7,7 +7,7 @@ defmodule Ss2.PageController do
   def index(conn, _params) do
     json conn, %{
         :message => "Hello from SS2.IR API",
-        :link => "https://gist.github.com/ourway/001f7a889e5635226a71d9ae84182823",
+        :docs => "https://ss2.ir/W4RN",
         :copyright => "Farsheed Ashouri ashouri <at> RASHAVAS <dot> COM"
       }
   end
